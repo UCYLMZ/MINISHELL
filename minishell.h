@@ -17,6 +17,7 @@ struct	s_data
 }	g_data;
 
 char	**ft_split(const char *s, char c);
+void	eof_control(char *line);
 void	sigint_voider(int signal);
 void	sigquit_voider(int signal);
 void	line_reader(char **env);

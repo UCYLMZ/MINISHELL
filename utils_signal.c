@@ -7,6 +7,16 @@ void	sigint_voider(int signal)
 	ioctl(0, TIOCSTI, "\n");
 }
 
+void	eof_control(char *line)
+{
+	if (!line)
+	{
+		write(1, "\033[2D", 4);
+		printf("exit\n");
+		exit (0);
+	}
+}
+
 void	sigquit_voider(int signal)
 {
 	(void)signal;
@@ -14,14 +24,14 @@ void	sigquit_voider(int signal)
 	// ioctl(0, TIOCSTI, " ");
 	// write(1, "\033[D", 3);
 	// ioctl(0, TIOCSTI, NULL);
-	// if (g_data.quit_flag == 1)
-	// {
-	// 	printf("in");
-	// 	write(1, "\033[2D", 4);
-	// 	write(1, "  ", 2);
-	// 	write(1, "\033[2D", 4);
-	// 	g_data.quit_flag = 0;
-	// }
-	// printf("sigquit\n");
-	// g_data.quit_flag = 1;
+	if (g_data.quit_flag == 1)
+	{
+		//printf("in");
+		write(1, "\033[2D", 4);
+		write(1, "  ", 2);
+		write(1, "\033[2D", 4);
+		g_data.quit_flag = 0;
+	}
+	//printf("sigquit\n");
+	g_data.quit_flag = 1;
 }
