@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-char	*ft_strjoin_v2(char *s1, char *s2)
+char	*ft_strjoin_v3(char *s1, char *s2)
 {
 	size_t		i;
 	size_t		j;
@@ -35,6 +35,26 @@ char	*ft_strjoin_v2(char *s1, char *s2)
 	while (s2[j])
 		result[i++] = s2[j++];
 	free(s1);
+	free(s2);
+	result[i] = '\0';
+	return (result);
+}
+
+char	*ft_strdup_v2(char *str, int start, int end)
+{
+	char *result;
+	int i;
+
+	result = malloc(sizeof(char) * (end - start + 1));
+	if (!result)
+		return (NULL);
+	i = 0;
+	while (str[start] && start < end)
+	{
+		result[i] = str[start];
+		i++;
+		start++;
+	}
 	result[i] = '\0';
 	return (result);
 }

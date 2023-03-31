@@ -26,8 +26,8 @@
 typedef struct s_arg_list
 {
 	char				*content;
-	struct s_arg_list	*next;
 	char				flag;
+	struct s_arg_list	*next;
 }	t_arg_list;
 
 struct s_arg
@@ -53,12 +53,12 @@ void		sigquit_voider(int signal);
 void		eof_control(char *line);
 void		sigint_voider(int signal);
 char		*find_pwd(char **envp);
-char		**ft_split_quotes(char *str);
 void		ft_lstdelone_v2(t_arg_list **lst);
 void		ft_lstclear_v2(t_arg_list **lst);
 t_arg_list	*ft_lstnew_v2(char *content, char flag);
 void		ft_lstadd_back_v2(t_arg_list **lst, t_arg_list *new);
-int			list_init(void);
-char		*ft_strjoin_v2(char *s1, char *s2);
+int			list_init(char *str);
+char		*ft_strjoin_v3(char *s1, char *s2);
+char		*ft_strdup_v2(char *str, int start, int end);
 
 #endif

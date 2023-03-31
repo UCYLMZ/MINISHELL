@@ -32,6 +32,7 @@ void	ft_lstclear_v2(t_arg_list **lst)
 		ft_lstdelone_v2(lst);
 		*lst = tmp;
 	}
+	lst = NULL;
 }
 
 t_arg_list	*ft_lstnew_v2(char *content, char flag)
@@ -42,7 +43,7 @@ t_arg_list	*ft_lstnew_v2(char *content, char flag)
 	if (!new_element)
 		return (NULL);
 	new_element->content = content;
-	new_element->flag = flag;
+	(*new_element).flag = flag;
 	new_element->next = NULL;
 	return (new_element);
 }

@@ -59,20 +59,21 @@ int	main(int argc, char **argv, char **envp)
 		if (*input != '\n' && *input != '\0')
 		{
 			add_history(input);
-			g_arg.args = ft_split_quotes(input);
-			list_init();
+			//g_arg.args = ft_split_quotes(input);
+			list_init(input);
 			//print_input();
 			g_arg.envp = envp;
-			get_first_arg();
+			//get_first_arg();
 			//cmd_process(envp);
 			g_arg.quit_flag = 0;
-			free_split();
+			//free_split();
 		}
 		else if (*input == 0)
 		{
-			free(input);
 			//system("leaks minishell");
 		}
+		free(input);
+		// system("leaks minishell");
 	}
 	return (0);
 }
