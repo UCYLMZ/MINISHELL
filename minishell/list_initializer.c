@@ -2,21 +2,18 @@
 
 void	quote_handler(char *str, int *index, char q)
 {
-	int 	backup;
 	int		i;
 	char	*result;
 
-	backup = *index + 1;
 	i = *index;
 	result = NULL;
-	while(str[i] == q)
+	while (str[i] == 34 || str[i] == 39)
 	{
 		i++;
 		while (str[i] && str[i] != q)
 			i++;
-		result = ft_strjoin_v3(result, ft_strdup_v2(str, backup, i));
-		i++;
-		backup = i + 1;
+		result = ft_strjoin_v3(result, ft_strdup_v2(str, *index, ++i));
+		*index = i;
 	}
 	ft_lstadd_back_v2(&g_arg.list, ft_lstnew_v2(result, q));
 	*index = i;
@@ -59,15 +56,15 @@ int list_init(char *str)
 
 	len = ft_strlen(str);
 	i = 0;
-	printf("--------\nstr: %s#\n", str);
+	//printf("--------\nstr: %s#\n", str);
 	ft_lstclear_v2(&g_arg.list);
 	while (i < len)
 	{
-		while (str[i] == ' ' && str[i] != 9)
+		while (str[i] == ' ')
 			i++;
 		if (str[i] == 34 || str[i] == 39)
 			quote_handler(str, &i, str[i]);
-		else if(str[i] == '>' || str[i] == '<' || str[i] == '|')
+		else if  (str[i] == '>' || str[i] == '<' || str[i] == '|')
 			special_handler(str, &i, str[i]);
 		else if (str[i] && str[i] != ' ')
 			handle_others(str, &i, 'o');
