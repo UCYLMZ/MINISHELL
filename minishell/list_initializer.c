@@ -1,83 +1,89 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   list_initializer.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/04/05 20:58:05 by uyilmaz           #+#    #+#             */
+/*   Updated: 2023/04/05 21:08:34 by uyilmaz          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-char	*dolar_quote_formatter(char *str)
+char	*dolar_handler(char *str, char q)
 {
 	int		i;
 	int		j;
-	int		flag;
-	char	q;
 	char	*result;
 
-	i = -1;
-	flag = 2;
+	if (q == 39)
+		return (str);
 	result = NULL;
-	while (str[++i])
+	i = -1;
+	j = -1;
+	while (1)
 	{
-		if (flag = 2)
-		{
-			q = first_quote(&str[i]);
-			flag = 0;
-		}
-		if (str[i] == q)
-		{
-			flag++;
-			i++;
-			result = ft_strjoin_v3(result, ft_strdup_v3(str, &i, q));
-		}
+		if (any_dolar(result))
+			j = i;
 	}
-	printf("result: *%s*\n", result);
-	return (result);
+	// return (result);
 }
 
-void	quote_handler(char *str, int *index, char q)
+char	*handle_regular(char *str, int *index)
 {
 	int		i;
 	char	*result;
 
 	i = *index;
-	result = NULL;
-	while (str[i] == 34 || str[i] == 39)
-	{
+	while (str[i] && !is_it_special(str[i]) && str[i] != 34 && str[i] != 39)
 		i++;
-		while (str[i] && str[i] != q)
-			i++;
-		result = ft_strjoin_v3(result, ft_strdup_v2(str, *index, ++i));
-		*index = i;
-	}
-	ft_lstadd_back_v2(&g_arg.list, ft_lstnew_v2(result, q));
+	result = ft_strdup_v2(str, *index, i);
 	*index = i;
+	return (result);
 }
 
 void	handle_others(char *str, int *index, char q)
 {
 	int		i;
+	int		flag;
 	char	*result;
 
+	result = NULL;
 	i = *index;
-	while (str[i] && str[i] != ' ' && str[i] != '>'
-		&& str[i] != '<' && str[i] != '|' && str[i] != 34 && str[i] != 39)
-		i++;
-	result = ft_strdup_v2(str, *index, i);
-	ft_lstadd_back_v2(&g_arg.list, ft_lstnew_v2(result, q));
+	while (str[i] && !is_it_special(str[i]))
+	{
+		if (str[i] == 34 || str[i] == 39)
+		{
+			i++;
+			result = ft_strjoin_v3(result, dolar_handler
+					(ft_strdup_v3(str, &i, str[i - 1]), str[i - 1]));
+		}
+		else
+			result = ft_strjoin_v3(result,
+					dolar_handler(handle_regular(str, &i), 0));
+	}
+	ft_lstadd_back_v2(&g_arg.list, ft_lstnew_v2(result, 'o'));
 	*index = i;
 }
 
 void	special_handler(char *str, int *index, char q)
 {
-	int 	backup;
+	int		backup;
 	int		i;
 	char	*result;
 
 	backup = *index;
 	i = 1;
-	if(str[i + backup] == q && str[i + backup] != '|')
+	if (str[i + backup] == q && str[i + backup] != '|')
 		i++;
 	result = ft_strdup_v2(str, backup, i + backup);
 	ft_lstadd_back_v2(&g_arg.list, ft_lstnew_v2(result, q));
 	*index = i + backup;
 }
 
-int list_init(char *str)
+int	list_init(char *str)
 {
 	char	*result;
 	int		len;
@@ -89,11 +95,9 @@ int list_init(char *str)
 	ft_lstclear_v2(&g_arg.list);
 	while (i < len)
 	{
-		while (str[i] == ' ')
+		while (str[i] == ' ' || str[i] == 9)
 			i++;
-		// if (str[i] == 34 || str[i] == 39)
-		// 	quote_handler(str, &i, str[i]);
-		if  (str[i] == '>' || str[i] == '<' || str[i] == '|')
+		if (str[i] == '>' || str[i] == '<' || str[i] == '|')
 			special_handler(str, &i, str[i]);
 		else if (str[i] && str[i] != ' ')
 			handle_others(str, &i, 'o');
@@ -102,7 +106,6 @@ int list_init(char *str)
 	while (ptr)
 	{
 		printf("command: #%s#\nflag: %c\n\n", ptr->content, ptr->flag);
-		dolar_quote_formatter(ptr->content);
 		ptr = ptr->next;
 	}
 	return (0);

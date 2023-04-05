@@ -6,7 +6,7 @@
 /*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/28 05:29:45 by uyilmaz           #+#    #+#             */
-/*   Updated: 2023/03/28 05:32:32 by uyilmaz          ###   ########.fr       */
+/*   Updated: 2023/04/05 21:10:54 by uyilmaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ char	*ft_strjoin_v3(char *s1, char *s2)
 
 char	*ft_strdup_v2(char *str, int start, int end)
 {
-	char *result;
-	int i;
+	char	*result;
+	int		i;
 
 	result = malloc(sizeof(char) * (end - start + 1));
 	if (!result)
@@ -59,11 +59,8 @@ char	*ft_strdup_v2(char *str, int start, int end)
 	return (result);
 }
 
-int		ft_strlen_v2(char *str, char q)
+int	ft_strlen_v2(char *str, char q, int i)
 {
-	int	i;
-
-	i = 0;
 	while (str[i] && str[i] != q)
 		i++;
 	return (i);
@@ -71,12 +68,11 @@ int		ft_strlen_v2(char *str, char q)
 
 char	*ft_strdup_v3(char *str, int *start, char end)
 {
-	char *result;
-	int	len;
-	int i;
+	char	*result;
+	int		len;
+	int		i;
 
-
-	len = ft_strlen_v2(str, end);
+	len = ft_strlen_v2(str, end, *start) - *start;
 	result = malloc(sizeof(char) * (len + 1));
 	if (!result)
 		return (NULL);
@@ -88,5 +84,6 @@ char	*ft_strdup_v3(char *str, int *start, char end)
 		(*start)++;
 	}
 	result[i] = '\0';
+	(*start)++;
 	return (result);
 }
