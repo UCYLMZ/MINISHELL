@@ -1,5 +1,34 @@
 #include "minishell.h"
 
+char	*dolar_quote_formatter(char *str)
+{
+	int		i;
+	int		j;
+	int		flag;
+	char	q;
+	char	*result;
+
+	i = -1;
+	flag = 2;
+	result = NULL;
+	while (str[++i])
+	{
+		if (flag = 2)
+		{
+			q = first_quote(&str[i]);
+			flag = 0;
+		}
+		if (str[i] == q)
+		{
+			flag++;
+			i++;
+			result = ft_strjoin_v3(result, ft_strdup_v3(str, &i, q));
+		}
+	}
+	printf("result: *%s*\n", result);
+	return (result);
+}
+
 void	quote_handler(char *str, int *index, char q)
 {
 	int		i;
@@ -62,9 +91,9 @@ int list_init(char *str)
 	{
 		while (str[i] == ' ')
 			i++;
-		if (str[i] == 34 || str[i] == 39)
-			quote_handler(str, &i, str[i]);
-		else if  (str[i] == '>' || str[i] == '<' || str[i] == '|')
+		// if (str[i] == 34 || str[i] == 39)
+		// 	quote_handler(str, &i, str[i]);
+		if  (str[i] == '>' || str[i] == '<' || str[i] == '|')
 			special_handler(str, &i, str[i]);
 		else if (str[i] && str[i] != ' ')
 			handle_others(str, &i, 'o');
@@ -73,6 +102,7 @@ int list_init(char *str)
 	while (ptr)
 	{
 		printf("command: #%s#\nflag: %c\n\n", ptr->content, ptr->flag);
+		dolar_quote_formatter(ptr->content);
 		ptr = ptr->next;
 	}
 	return (0);

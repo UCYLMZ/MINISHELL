@@ -60,5 +60,7 @@ void		ft_lstadd_back_v2(t_arg_list **lst, t_arg_list *new);
 int			list_init(char *str);
 char		*ft_strjoin_v3(char *s1, char *s2);
 char		*ft_strdup_v2(char *str, int start, int end);
+char		first_quote(char *str);
+char		*ft_strdup_v3(char *str, int *start, char end);
 
 #endif

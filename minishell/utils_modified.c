@@ -58,3 +58,35 @@ char	*ft_strdup_v2(char *str, int start, int end)
 	result[i] = '\0';
 	return (result);
 }
+
+int		ft_strlen_v2(char *str, char q)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] && str[i] != q)
+		i++;
+	return (i);
+}
+
+char	*ft_strdup_v3(char *str, int *start, char end)
+{
+	char *result;
+	int	len;
+	int i;
+
+
+	len = ft_strlen_v2(str, end);
+	result = malloc(sizeof(char) * (len + 1));
+	if (!result)
+		return (NULL);
+	i = 0;
+	while (str[*start] && str[*start] != end)
+	{
+		result[i] = str[*start];
+		i++;
+		(*start)++;
+	}
+	result[i] = '\0';
+	return (result);
+}
