@@ -6,7 +6,7 @@
 /*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 02:20:46 by melih             #+#    #+#             */
-/*   Updated: 2023/04/05 18:42:49 by uyilmaz          ###   ########.fr       */
+/*   Updated: 2023/04/07 01:56:07 by uyilmaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,7 @@ char		*ft_strjoin_v3(char *s1, char *s2);
 char		*ft_strdup_v2(char *str, int start, int end);
 char		*ft_strdup_v3(char *str, int *start, char end);
 int			is_it_special(char c);
-char		*get_env_var(char *str, int index, char **env);
+char		*get_env_var(char *str, char **env, int *i, int *j);
 int			ft_strlen_v2(char *str, char q, int i);
-int			any_dolar(char *str);
 
 #endif

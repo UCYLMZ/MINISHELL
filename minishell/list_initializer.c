@@ -6,13 +6,13 @@
 /*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 20:58:05 by uyilmaz           #+#    #+#             */
-/*   Updated: 2023/04/05 21:08:34 by uyilmaz          ###   ########.fr       */
+/*   Updated: 2023/04/07 02:14:52 by uyilmaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*dolar_handler(char *str, char q)
+char	*dollar_handler(char *str, char q)
 {
 	int		i;
 	int		j;
@@ -22,30 +22,22 @@ char	*dolar_handler(char *str, char q)
 	if (q == 39)
 		return (str);
 	result = NULL;
-	i = -1;
-	j = 0;
-	while (str[++i])
+	i = 0;
+	while (str[i])
 	{
-		//printf("str[i]: %c\n", str[i]);
+		j = i;
+		while (str[i] && str[i] != '$')
+			i++;
+		result = ft_strjoin_v3(result, ft_strdup_v2(str, j, i));
 		if (str[i] == '$')
 		{
-			env = NULL;
-			result = ft_strjoin_v3(result, ft_strdup_v2(str, j, i));
-			i++;
-			j = i;
-			while (ft_isalnum(str[i]))
-				i++;
-			env = get_env_var(&str[j], i - j, g_arg.envp);
-			//printf("env: %s\n", env);
+			env = get_env_var(&str[++i], g_arg.envp, &i, &j);
 			if (env)
 				result = ft_strjoin_v3(result, env);
-			printf("res: %s\n", result);
 		}
 	}
-	//get_env_var(str, 0, g_arg.envp);
-	if (result)
-		return (result);
-	return (str);
+	free(str);
+	return (result);
 }
 
 char	*handle_regular(char *str, int *index)
@@ -74,12 +66,12 @@ void	handle_others(char *str, int *index, char q)
 		if (str[i] == 34 || str[i] == 39)
 		{
 			i++;
-			result = ft_strjoin_v3(result, dolar_handler
+			result = ft_strjoin_v3(result, dollar_handler
 					(ft_strdup_v3(str, &i, str[i - 1]), str[i - 1]));
 		}
 		else
 			result = ft_strjoin_v3(result,
-					dolar_handler(handle_regular(str, &i), 0));
+					dollar_handler(handle_regular(str, &i), 0));
 	}
 	ft_lstadd_back_v2(&g_arg.list, ft_lstnew_v2(result, 'o'));
 	*index = i;
@@ -108,7 +100,6 @@ int	list_init(char *str)
 
 	len = ft_strlen(str);
 	i = 0;
-	//printf("--------\nstr: %s#\n", str);
 	ft_lstclear_v2(&g_arg.list);
 	while (i < len)
 	{
@@ -125,5 +116,6 @@ int	list_init(char *str)
 		printf("command: #%s#\nflag: %c\n\n", ptr->content, ptr->flag);
 		ptr = ptr->next;
 	}
+	//system("leaks minishell");
 	return (0);
 }
