@@ -12,34 +12,6 @@
 
 #include "minishell.h"
 
-int	pass_quote(char *str, char q)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] == q)
-		i++;
-	return (i);
-}
-
-char	first_quote(char *str)
-{
-	int		i;
-	char	q;
-
-	i = -1;
-	q = 0;
-	while (str[++i])
-	{
-		if (str[i] == 34 || str[i] == 39)
-		{
-			q = str[i];
-			return (q);
-		}
-	}
-	return (0);
-}
-
 int	is_it_special(char c)
 {
 	if (c == ' ' || c == 9 || c == '>' || c == '<' || c == '|')
@@ -47,15 +19,18 @@ int	is_it_special(char c)
 	return (0);
 }
 
-int	any_dolar(char *str)
+char	*get_env_var(char *str, int len, char **env)
 {
-	int	i;
-
-	i = -1;
-	while (str[++i])
+	int 	i;
+	
+	while (*env)
 	{
-		if (str[i] == '$')
-			return (i);
+		len = ft_strlen_v2(str, '=', 0);
+		if (ft_strncmp(str, *env, len) == 0 && (*env)[len] == '=')
+			break ;
+		env++;
 	}
-	return (-1);
+	if (!(*env))
+		return (NULL);
+	return (ft_strdup(&((*env)[len + 1])));
 }

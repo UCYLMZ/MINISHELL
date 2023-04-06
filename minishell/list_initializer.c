@@ -17,18 +17,35 @@ char	*dolar_handler(char *str, char q)
 	int		i;
 	int		j;
 	char	*result;
+	char	*env;
 
 	if (q == 39)
 		return (str);
 	result = NULL;
 	i = -1;
-	j = -1;
-	while (1)
+	j = 0;
+	while (str[++i])
 	{
-		if (any_dolar(result))
+		//printf("str[i]: %c\n", str[i]);
+		if (str[i] == '$')
+		{
+			env = NULL;
+			result = ft_strjoin_v3(result, ft_strdup_v2(str, j, i));
+			i++;
 			j = i;
+			while (ft_isalnum(str[i]))
+				i++;
+			env = get_env_var(&str[j], i - j, g_arg.envp);
+			//printf("env: %s\n", env);
+			if (env)
+				result = ft_strjoin_v3(result, env);
+			printf("res: %s\n", result);
+		}
 	}
-	// return (result);
+	//get_env_var(str, 0, g_arg.envp);
+	if (result)
+		return (result);
+	return (str);
 }
 
 char	*handle_regular(char *str, int *index)

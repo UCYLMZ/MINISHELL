@@ -60,9 +60,9 @@ int	main(int argc, char **argv, char **envp)
 		{
 			add_history(input);
 			//g_arg.args = ft_split_quotes(input);
+			g_arg.envp = envp;
 			list_init(input);
 			//print_input();
-			g_arg.envp = envp;
 			//get_first_arg();
 			//cmd_process(envp);
 			g_arg.quit_flag = 0;
