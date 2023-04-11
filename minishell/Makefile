@@ -8,17 +8,27 @@ NAME		=		minishell
 
 CC			=		gcc
 
-CFLAGS		=		
+CFLAGS		=		-I./lib/readline/include
 
 RM			=		rm -rf
 
-all:		$(NAME) $(LIBFT)
+LDFLAGS = -L./lib/readline/lib -lreadline
+
+LIB = ./lib/.minishell
+
+all:	$(LIB)	$(NAME) $(LIBFT)
 
 $(LIBFT):
 			make bonus -C ./libft
 
-$(NAME):	$(OBJS) $(LIBFT)
-				$(CC) $(CFLAGS) -lreadline $(OBJS) libft/libft.a  -o $(NAME) && ./$(NAME)
+$(NAME):	$(OBJS) $(LIBFT) 
+				$(CC) $(CFLAGS) $(OBJS) libft/libft.a $(LDFLAGS) -o $(NAME)
+
+$(LIB):
+	@make -C ./lib
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 				$(RM) $(OBJS)
@@ -26,6 +36,10 @@ clean:
 fclean:		clean
 				$(RM) $(NAME)
 			make fclean -C libft
+
+ffclean:
+		make fclean
+		make fclean ./lib
 
 re:			fclean all
 

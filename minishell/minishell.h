@@ -6,21 +6,23 @@
 /*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 02:20:46 by melih             #+#    #+#             */
-/*   Updated: 2023/04/07 01:56:07 by uyilmaz          ###   ########.fr       */
+/*   Updated: 2023/04/11 02:44:55 by uyilmaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <readline/readline.h>
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <fcntl.h>
 # include <sys/wait.h>
+# include <sys/ioctl.h>
 # include <signal.h>
 # include <dirent.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "./libft/libft.h"
 
 typedef struct s_arg_list

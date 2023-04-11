@@ -6,7 +6,7 @@
 /*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 02:20:29 by melih             #+#    #+#             */
-/*   Updated: 2023/04/07 02:20:22 by uyilmaz          ###   ########.fr       */
+/*   Updated: 2023/04/11 03:43:14 by uyilmaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,13 @@ int	main(int argc, char **argv, char **envp)
 {
 	char	*input;
 
-	signal(SIGINT, &sigint_voider);
-	signal(SIGQUIT, &sigquit_voider);
+	signal(SIGQUIT, SIG_IGN);
 	g_arg.list = NULL;
 	g_arg.paths = find_path(envp);
 	g_arg.cmd_paths = ft_split(g_arg.paths, ':');
 	while (1)
 	{
+		signal(SIGINT, &sigint_voider);
 		input = readline("minishell$ ");
 		eof_control(input);
 		if (*input != '\n' && *input != '\0')
@@ -65,13 +65,12 @@ int	main(int argc, char **argv, char **envp)
 			//print_input();
 			//get_first_arg();
 			//cmd_process(envp);
-			g_arg.quit_flag = 0;
 			//free_split();
 		}
-		else if (*input == 0)
-		{
-			//system("leaks minishell");
-		}
+		// else if (*input == 0)
+		// {
+		// 	system("leaks minishell");
+		// }
 		free(input);
 		// system("leaks minishell");
 	}
