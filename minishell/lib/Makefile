@@ -18,9 +18,9 @@ LIB				= ./.minishell
 all : $(LIB)
 
 fclean : 
-	@echo $(YELLOW) "Removing readline..." $(END)
+	@echo $(YELLOW) "Removing readline..."$(END)
 	@$(RM) ./readline $(LIB)
-	@echo $(RED) "readline deleted successfully!\n" $(END)
+	@echo $(RED) "readline deleted successfully!\n"$(END)
 
 re : fclean all
 

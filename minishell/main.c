@@ -6,73 +6,60 @@
 /*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 02:20:29 by melih             #+#    #+#             */
-/*   Updated: 2023/04/11 03:43:14 by uyilmaz          ###   ########.fr       */
+/*   Updated: 2023/05/26 21:32:41 by uyilmaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	print_input()
+void	handle_signal(void)
 {
-	int	i;
-
-	i = -1;
-	while (g_arg.args[++i])
-	{
-		printf("%s\n", g_arg.args[i]);
-	}
+	signal(SIGINT, &sigint_voider);
+	signal(SIGQUIT, &sigquit_voider);
+	signal(SIGUSR1, &signal_handler);
 }
 
-int	get_first_arg(void)
+void	set_start(char **envp)
 {
-	if (!ft_strncmp("exit", g_arg.args[0], 4))
-	{
-		printf("exit\n");
-		exit(0);
-	}
-	return (0);
+	handle_signal();
+	get_env(envp);
+	g_arg.list = NULL;
+	set_export();
 }
 
-void	free_split()
+void	routine(void)
 {
-	int	i;
-
-	i = -1;
-	while (g_arg.args[++i])
-		free(g_arg.args[i]);
-	free(g_arg.args);
+	count_arg();
+	flag_setter();
+	find_path(g_arg.env);
+	g_arg.cmd_paths = ft_split(g_arg.paths, ':');
+	find_pwd(g_arg.env);
+	spreader();
+	g_arg.quit_flag = 0;
+	refresh_counts();
+	free(g_arg.input);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	char	*input;
-
-	signal(SIGQUIT, SIG_IGN);
-	g_arg.list = NULL;
-	g_arg.paths = find_path(envp);
-	g_arg.cmd_paths = ft_split(g_arg.paths, ':');
+	set_start(envp);
 	while (1)
 	{
-		signal(SIGINT, &sigint_voider);
-		input = readline("minishell$ ");
-		eof_control(input);
-		if (*input != '\n' && *input != '\0')
+		g_arg.input = readline("minishell$ ");
+		eof_control(g_arg.input);
+		if (*g_arg.input != '\n' && *g_arg.input != '\0')
 		{
-			add_history(input);
-			//g_arg.args = ft_split_quotes(input);
-			g_arg.envp = envp;
-			list_init(input);
-			//print_input();
-			//get_first_arg();
-			//cmd_process(envp);
-			//free_split();
+			add_history(g_arg.input);
+			list_init(g_arg.input);
+			if (check_quote(g_arg.input) || pipe_check())
+			{
+				free(g_arg.input);
+				continue ;
+			}
+			routine();
 		}
-		// else if (*input == 0)
-		// {
-		// 	system("leaks minishell");
-		// }
-		free(input);
-		// system("leaks minishell");
+		else if (*g_arg.input == 0)
+			free(g_arg.input);
 	}
 	return (0);
 }

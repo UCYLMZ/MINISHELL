@@ -6,7 +6,7 @@
 /*   By: melih <melih@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/24 03:56:32 by melih             #+#    #+#             */
-/*   Updated: 2023/03/24 04:01:47 by melih            ###   ########.fr       */
+/*   Updated: 2023/05/26 16:33:43 by melih            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ int	open_folder(void)
 {
 	int	fd;
 
-	fd = open(g_arg.args[1], O_RDWR);
+	//fd = open(g_arg.args[1], O_RDWR);
 	if (fd < 0)
 	{
-		printf("minishell: %s: No such file or directory\n", g_arg.args[1]);
+		//printf("minishell: %s: No such file or directory\n", g_arg.args[1]);
 		return (0);
 	}
 	return (0);
