@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error_check.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uyilmaz <uyilmaz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: muyumak <muyumak@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/16 00:57:50 by melih             #+#    #+#             */
-/*   Updated: 2023/05/26 21:28:00 by uyilmaz          ###   ########.fr       */
+/*   Created: 2023/06/02 18:39:51 by muyumak           #+#    #+#             */
+/*   Updated: 2023/06/02 18:39:53 by muyumak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,14 @@ int	pipe_check(void)
 	t_arg_list	*last;
 
 	last = g_arg.list;
+	if (last == NULL)
+		return (1);
 	while (last->next)
 		last = last->next;
 	if (last->flag == '|')
 	{
-		printf("syntax error\n");
+		printf("minishell: syntax error near unexpected token %s\n",
+			last->content);
 		return (1);
 	}
 	return (0);
@@ -48,5 +51,60 @@ int	check_quote(char *str)
 			}
 		}
 	}
+	return (0);
+}
+
+int	is_exportable(char *str, int len)
+{
+	int	i;
+
+	if (!ft_isalpha(*str))
+		return (0);
+	i = -1;
+	while (str[++i] && i < len)
+	{
+		if (!ft_isalnum(str[i]))
+			return (0);
+	}
+	return (1);
+}
+
+int	filename_control_v2(void)
+{
+	t_arg_list	*temp;
+
+	temp = last_of_list();
+	if (temp->flag == '>' || temp->flag == '<' || temp->flag == '|')
+	{
+		printf("minishell: syntax error near unexpected token %s\n",
+			temp->content);
+		return (1);
+	}
+	return (0);
+}
+
+int	filename_control(void)
+{
+	t_arg_list	*temp;
+
+	temp = g_arg.list;
+	while (temp)
+	{
+		if (temp->flag == '<' || temp->flag == '>')
+		{
+			if (!ft_strcmp("<", temp->content) || !ft_strcmp(">", temp->content)
+				|| !ft_strcmp("<<", temp->content)
+				|| !ft_strcmp(">>", temp->content)
+				|| !ft_strcmp("|", temp->content))
+			{
+				printf("minishell: syntax error near unexpected token %s\n",
+					temp->content);
+				return (1);
+			}
+		}
+		temp = temp->next;
+	}
+	if (filename_control_v2())
+		return (1);
 	return (0);
 }

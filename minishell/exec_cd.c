@@ -3,48 +3,83 @@
 /*                                                        :::      ::::::::   */
 /*   exec_cd.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: melih <melih@student.42.fr>                +#+  +:+       +#+        */
+/*   By: muyumak <muyumak@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/29 03:49:17 by melih             #+#    #+#             */
-/*   Updated: 2023/05/03 17:43:32 by melih            ###   ########.fr       */
+/*   Created: 2023/06/02 18:39:57 by muyumak           #+#    #+#             */
+/*   Updated: 2023/06/02 18:39:58 by muyumak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	go_back(char *env_pwd)
+char	*get_home(void)
 {
-	int	i;
+	char	*home;
+	int		index;
+	int		i;
+	int		j;
 
-	i = ft_strlen(env_pwd) - 1;
-	while (env_pwd[i] && env_pwd[i] != '/')
-	{
-		env_pwd[i] = 0;
-		i--;
-	}
-	env_pwd[i] = 0;
-	chdir(env_pwd);
+	index = check_envp("HOME");
+	home = malloc(sizeof(char) * (ft_strlen(g_arg.env[index] + 5) + 1));
+	i = 4;
+	j = -1;
+	while (g_arg.env[index][++i])
+		home[++j] = g_arg.env[index][i];
+	home[j + 1] = 0;
+	return (home);
 }
 
-void	exec_cd(int query)
+void	exec_cd(void)
 {
-	char	*env_pwd;
-	
-	env_pwd = g_arg.pwd;
-	if (g_arg.cmds[query]->cmd_args[1] == 0)
+	char	*temp;
+
+	if (((split_len(g_arg.cmds[0]->cmd_args) == 2
+				&& !ft_strcmp("~", g_arg.cmds[0]->cmd_args[1]))
+			|| split_len(g_arg.cmds[0]->cmd_args) == 1))
 	{
-		g_arg.pwd = getenv("HOME");
-		chdir(getenv("HOME"));
+		temp = get_home();
+		if (is_available_path(temp))
+			return ;
+		free(temp);
 	}
-	else if (!ft_strncmp("..", g_arg.cmds[query]->cmd_args[1], ft_strlen(g_arg.cmds[query]->cmd_args[1])))
-		go_back(g_arg.pwd);
-	else
+	else if (split_len(g_arg.cmds[0]->cmd_args) == 2)
 	{
-		g_arg.pwd = ft_strjoin(g_arg.pwd, "/");
-		g_arg.pwd = ft_strjoin(g_arg.pwd, g_arg.cmds[query]->cmd_args[1]);
-		if (!access(g_arg.pwd, F_OK))
-			chdir(g_arg.pwd);
+		if (g_arg.cmds[0]->cmd_args[1][0] == '~')
+		{
+			temp = ft_strjoin(get_variable("HOME"),
+					&g_arg.cmds[0]->cmd_args[1][1]);
+			is_available_path(temp);
+			free(temp);
+		}
 		else
-			go_back(g_arg.pwd);
+			if (is_available_path(g_arg.cmds[0]->cmd_args[1]))
+				return ;
 	}
+}
+
+int	is_available_path(char *path)
+{
+	if (chdir(path) == -1)
+	{
+		printf("minishell: cd: %s: No such file or directory\n", path);
+		return (1);
+	}
+	return (0);
+}
+
+void	set_pwd(char *temp)
+{
+	char	*cwd;
+
+	cwd = malloc(sizeof(char) * PATH_MAX);
+	getcwd(cwd, PATH_MAX);
+	temp = ft_strjoin("PWD=", cwd);
+	if (check_envp(temp) != -1)
+	{
+		put_env(temp);
+		put_export(temp);
+	}
+	g_arg.pwd = ft_strdup(temp + 4);
+	free(temp);
+	free(cwd);
 }

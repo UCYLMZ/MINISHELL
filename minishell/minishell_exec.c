@@ -3,49 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_exec.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: melih <melih@student.42.fr>                +#+  +:+       +#+        */
+/*   By: muyumak <muyumak@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/23 02:25:38 by melih             #+#    #+#             */
-/*   Updated: 2023/05/26 16:36:29 by melih            ###   ########.fr       */
+/*   Created: 2023/06/02 18:40:52 by muyumak           #+#    #+#             */
+/*   Updated: 2023/06/02 19:42:04 by muyumak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	find_path(char **envp)
-{
-	int	i;
-
-	i = -1;
-	while (envp[++i])
-	{
-		if (!ft_strncmp("PATH", envp[i], 4))
-		{
-			g_arg.paths = ft_strdup(envp[i] + 5);
-			return ;
-		}
-	}
-	g_arg.paths = NULL;
-}
-
-void	find_pwd(char **envp)
-{
-	int	i;
-
-	i = -1;
-	while (envp[++i])
-		if (!ft_strncmp("PWD", envp[i], 3))
-		{
-			g_arg.pwd = ft_strdup(envp[i] + 4);
-			return ;			
-		}
-	g_arg.pwd = NULL;
-}
-
 void	here_doc_process(t_cmd *command, int hd_id)
 {
 	char	*temp;
-	
+
 	command->heredoc[hd_id].pid = fork();
 	if (command->heredoc[hd_id].pid == 0)
 	{
@@ -54,8 +24,10 @@ void	here_doc_process(t_cmd *command, int hd_id)
 			if (hd_id == command->heredoc_count - 1)
 				close(command->heredoc[hd_id].tubes[0]);
 			command->heredoc[hd_id].input = readline("> ");
-			if (ft_strcmp(command->heredoc[hd_id].input, command->heredoc[hd_id].here_doc_name) == 0)
-				exit(0);				
+			if (ft_strcmp(command->heredoc[hd_id].input,
+					command->heredoc[hd_id].here_doc_name) == 0
+				|| g_arg.close_process == 1)
+				exit (0);
 			temp = ft_strjoin(command->heredoc[hd_id].input, "\n");
 			if (hd_id == command->heredoc_count - 1)
 				write(command->heredoc[hd_id].tubes[1], temp, ft_strlen(temp));
@@ -65,7 +37,7 @@ void	here_doc_process(t_cmd *command, int hd_id)
 	}
 }
 
-void	open_heredoc(t_cmd *command, int x)
+void	open_heredoc(t_cmd *command)
 {
 	int	i;
 
@@ -95,19 +67,17 @@ void	waited_heredoc(int i)
 		x++;
 	}
 	if (g_arg.cmds[i]->heredoc_count != 0)
-		open_heredoc(g_arg.cmds[i], i);
+		open_heredoc(g_arg.cmds[i]);
 	else
 		close_heredoc_tubes();
 }
 
-int	cmd_process(char **envp, int i)
+int	cmd_process(int i)
 {
-	int	x;
-
-	x = 1;
 	g_arg.pid[i] = fork();
 	if (g_arg.pid[i] == 0)
 	{
+		signal(SIGUSR2, child_signal_handler);
 		waited_heredoc(i);
 		close_fd(g_arg.cmds[i]);
 		dup2(g_arg.cmds[i]->fd_in, STDIN_FILENO);
@@ -119,36 +89,13 @@ int	cmd_process(char **envp, int i)
 		else
 			g_arg.cmd = g_arg.cmds[i]->cmd_args[0];
 		if (!g_arg.cmd)
+			exit(127);
+		if (execve(g_arg.cmd, g_arg.cmds[i]->cmd_args, g_arg.env) == -1)
 		{
-			printf("minishell: %s: command not found\n", g_arg.cmds[i]->cmd_args[0]);
+			printf("minishell: %s: command not found\n",
+				g_arg.cmds[i]->cmd_args[0]);
 			exit(127);
 		}
-		execve(g_arg.cmd, g_arg.cmds[i]->cmd_args, g_arg.env);
-	}
-	return (0);
-}
-
-void	print_closing_fd(int fd)
-{
-	printf("closing_fd: %d\n", fd);
-}
-
-char	*get_cmd(char **paths, char *cmd)
-{
-	char	*command;
-	char	*tmp;
-
-	if (paths == NULL || *cmd == 0)
-		return (0);
-	while (*paths)
-	{
-		tmp = ft_strjoin(*paths, "/");
-		command = ft_strjoin(tmp, cmd);
-		free(tmp);
-		if (access(command, 0) == 0)
-			return (command);
-		free(command);
-		paths++;
 	}
 	return (0);
 }

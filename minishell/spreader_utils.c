@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   spreader_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: melih <melih@student.42.fr>                +#+  +:+       +#+        */
+/*   By: muyumak <muyumak@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/10 20:25:52 by melih             #+#    #+#             */
-/*   Updated: 2023/05/25 21:47:22 by melih            ###   ########.fr       */
+/*   Created: 2023/06/02 18:41:14 by muyumak           #+#    #+#             */
+/*   Updated: 2023/06/02 18:41:16 by muyumak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void	count_arg(void)
 		g_arg.arg_count++;
 		temp = temp->next;
 	}
+	g_arg.pipe_count++;
 }
 
 int	flag_setter(void)
@@ -35,18 +36,8 @@ int	flag_setter(void)
 	i = 0;
 	while (temp)
 	{
-		if (temp->flag == '>')
-			if (temp->next)
-				temp->next->flag = 't';
-		if (temp->flag == '<')
-			if (temp->next)
-				temp->next->flag = 'i';
-		if (ft_strcmp(temp->content, "<<") == 0)
-		{
-			temp->flag = 'h';
-			if (temp->next)
-				temp->next->flag = 'e';
-		}
+		if (flag_setter_v3(&temp) || flag_setter_v2(&temp))
+			return (1);
 		temp = temp->next;
 	}
 	return (0);
@@ -74,7 +65,7 @@ void	refresh_counts(void)
 	{
 		free_commands();
 		g_arg.arg_count = 0;
-		g_arg.pipe_count = 0;
+		g_arg.pipe_count = -1;
 		g_arg.sigusr_i = 0;
 		if (g_arg.pwd != NULL)
 			free(g_arg.pwd);
@@ -103,6 +94,7 @@ void	free_commands(void)
 	free(g_arg.cmds);
 	free(g_arg.commands);
 	free(g_arg.pid);
+	g_arg.pid = NULL;
 	i = -1;
 	while (++i < g_arg.pipe_count)
 		free(g_arg.tubes[i]);

@@ -3,154 +3,117 @@
 /*                                                        :::      ::::::::   */
 /*   exec_export.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: melih <melih@student.42.fr>                +#+  +:+       +#+        */
+/*   By: muyumak <muyumak@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/27 23:41:47 by melih             #+#    #+#             */
-/*   Updated: 2023/05/25 19:08:24 by melih            ###   ########.fr       */
+/*   Created: 2023/06/02 18:40:08 by muyumak           #+#    #+#             */
+/*   Updated: 2023/06/02 18:40:10 by muyumak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	set_export(void)
-{
-	int	variable_count;
-	int	i;
-
-	variable_count = split_len(g_arg.env);
-	g_arg.exports = malloc(sizeof(char *) * (variable_count + 1));
-	i = -1;
-	while (g_arg.env[++i])
-		g_arg.exports[i] = ft_strdup(g_arg.env[i]);
-}
-
-int	ft_strlen_equal(char *arg)
-{
-	int	i;
-
-	i = 0;
-	while (arg[i] && arg[i] != '=')
-		i++;
-	return (i);
-}
-
 int	check_envp(char *value)
 {
 	int	i;
 
-	i = 0;
-	while (g_arg.env[i])
-	{
-		if (!ft_strncmp(g_arg.env[i], value, ft_strlen_equal(value)))
-		{
-			if (!ft_strcmp(g_arg.env[i], value))
-				return (1);
-			else
-				put_env(value, i, 0);
-		}
-		i++;
-	}
-	i = 0;
-	while (g_arg.exports[i])
-	{
-		if (!ft_strncmp(g_arg.exports[i], value, ft_strlen_equal(value)))
-		{
-			if (!ft_strcmp(g_arg.exports[i], value))
-				return (1);
-			else
-			{
-				put_export(value, i, 0);
-				if (!equal_control(value))
-					put_env(value, i, 0);
-				return (1);
-			}
-		}
-		i++;
-	}
-	return (0);
-}
-
-void	exec_export(int	query)
-{
-	int	i;
-	int	j;
-
-	j = 0;
-	i = split_len(g_arg.env);
-	while (g_arg.cmds[query]->cmd_args[++j])
-	{
-		if (!check_envp(g_arg.cmds[query]->cmd_args[j]))
-		{
-			if (!equal_control(g_arg.cmds[query]->cmd_args[j]))
-			{
-				if (g_arg.env[i] != NULL)
-					free(g_arg.env[i]);
-				g_arg.env[i] = ft_strdup(g_arg.cmds[query]->cmd_args[j]);
-				i++;
-				g_arg.env[i] = 0;
-				put_export(g_arg.cmds[query]->cmd_args[j], split_len(g_arg.exports), 1);
-			}
-			else
-				put_export(g_arg.cmds[query]->cmd_args[j], split_len(g_arg.exports), 1);
-		}
-	}
-}
-
-int	equal_control(char *arg)
-{
-	int	i;
-
-	i= -1;
-	while (arg[++i])
-		if (arg[i] == '=')
-			return (0);
-	return (1);
-}
-
-void	exec_env(void)
-{
-	int	i;
-
 	i = -1;
 	while (g_arg.env[++i])
-		printf("%s\n", g_arg.env[i]);
+	{
+		if (ft_strlen_equal(g_arg.env[i]) == ft_strlen_equal(value))
+			if (!ft_strncmp(g_arg.env[i], value, ft_strlen_equal(g_arg.env[i])))
+				return (i);
+	}
+	return (-1);
 }
 
-void	put_export(char *arg, int i, int flag)
-{
-	free(g_arg.exports[i]);
-	g_arg.exports[i] = ft_strdup(arg);
-	if (flag == 1)
-		g_arg.exports[++i] = NULL;
-}
-
-void	put_env(char *arg, int i, int flag)
-{
-	free(g_arg.env[i]);
-	g_arg.env[i] = ft_strdup(arg);
-	if (flag == 1)
-		g_arg.env[++i] = NULL;
-}
-
-void	ft_smart_putstr(char **strings)
+int	check_export(char *value)
 {
 	int	i;
-	int	j;
 
 	i = -1;
-	while(strings[++i])
+	while (g_arg.exports[++i])
 	{
-		j = -1;
-		printf("declare -x ");
-		while (strings[i][++j])
+		if (ft_strlen_equal(g_arg.exports[i]) == ft_strlen_equal(value))
+			if (!ft_strncmp(g_arg.exports[i],
+					value, ft_strlen_equal(g_arg.exports[i])))
+				return (i);
+	}
+	return (-1);
+}
+
+void	exec_export(void)
+{
+	int	i;
+	int	len;
+
+	len = split_len(g_arg.cmds[0]->cmd_args);
+	i = 0;
+	while (++i < len)
+	{
+		if (is_exportable(g_arg.cmds[0]->cmd_args[i],
+				ft_strlen_equal(g_arg.cmds[0]->cmd_args[i])))
 		{
-			if (strings[i][j] == '=')
-				printf("=\"");
-			else
-				printf("%c", strings[i][j]);
+			put_export(g_arg.cmds[0]->cmd_args[i]);
+			if (!equal_control(g_arg.cmds[0]->cmd_args[i]))
+				put_env(g_arg.cmds[0]->cmd_args[i]);
 		}
-		if (!equal_control(strings[i]))
-			printf("%c", 34);
-		printf("\n");
+		else
+			printf("minishell: export: %s: not a valid identifier\n",
+				g_arg.cmds[0]->cmd_args[i]);
+	}
+}
+
+void	put_export(char *value)
+{
+	char	**temp;
+	int		i;
+	int		index;
+
+	index = check_export(value);
+	if (index == -1)
+	{
+		temp = malloc(sizeof(char *) * (split_len(g_arg.exports) + 2));
+		i = -1;
+		while (g_arg.exports[++i])
+			temp[i] = ft_strdup(g_arg.exports[i]);
+		temp[i] = ft_strdup(value);
+		temp[++i] = 0;
+		free_split(g_arg.exports);
+		g_arg.exports = temp;
+	}
+	else
+	{
+		if (!equal_control(value))
+		{
+			free(g_arg.exports[index]);
+			g_arg.exports[index] = ft_strdup(value);
+		}
+	}
+}
+
+void	put_env(char *value)
+{
+	char	**temp;
+	int		len;
+	int		i;
+	int		index;
+
+	index = check_envp(value);
+	if (index == -1)
+	{
+		len = split_len(g_arg.env);
+		temp = malloc(sizeof(char *) * (len + 2));
+		i = -1;
+		while (g_arg.env[++i])
+			temp[i] = ft_strdup(g_arg.env[i]);
+		temp[i] = ft_strdup(value);
+		temp[++i] = 0;
+		free_split(g_arg.env);
+		g_arg.env = temp;
+	}
+	else
+	{
+		free(g_arg.env[index]);
+		g_arg.env[index] = ft_strdup(value);
 	}
 }
